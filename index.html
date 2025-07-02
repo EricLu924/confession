@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超準心理測驗 - 測出你的真實性格</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            backdrop-filter: blur(10px);
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .question-number {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .option-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .option {
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 180px;
+            max-width: 200px;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .option-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .option-text {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .heart-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff69b4;
+            font-size: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .photo-frame {
+            width: 200px;
+            height: 200px;
+            border: 5px solid #ff69b4;
+            border-radius: 50%;
+            margin: 20px auto;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .confession-text {
+            font-size: 1.8em;
+            color: #ff1493;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .yes-button {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            font-size: 18px;
+            padding: 20px 40px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .final-message {
+            font-size: 1.5em;
+            color: #ff1493;
+            margin: 20px 0;
+        }
+
+        .error {
+            color: #ff4444;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transition: width 0.8s ease;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 步驟1: 歡迎頁面 -->
+        <div class="step active" id="step1">
+            <h1>🔮 2025 SEEC-心理測驗</h1>
+            <p style="font-size: 1.2em; margin: 20px 0; color: #666;">
+                通過3道題目，深度分析你的性格特徵<br>
+                準確率高達99.9%！
+            </p>
+            <div style="font-size: 14px; color: #999; margin: 20px 0;">
+                ⚡ 僅需2分鐘 | 🎯 科學分析 | 🔥 AI大數據推理
+            </div>
+            <button onclick="nextStep()">開始測驗</button>
+        </div>
+
+        <!-- 步驟2: 身份驗證 -->
+        <div class="step" id="step2">
+            <h2>📝 測驗前準備</h2>
+            <p style="margin-bottom: 20px; color: #666;">為了產生個人化結果，請填寫基本資訊</p>
+            <input type="text" id="username" placeholder="請輸入你的姓名" required>
+            <input type="password" id="password" placeholder="今天的日期 (格式: YYYY-MM-DD)" required>
+            <div style="font-size: 12px; color: #999; margin: 10px 0;">
+                💡 提示：密碼是今天的日期，用來確保測驗結果的時效性
+            </div>
+            <div class="error" id="loginError"></div>
+            <button onclick="validateLogin()">開始測驗</button>
+        </div>
+
+        <!-- 進度條 -->
+        <div class="step" id="progress-step">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div style="font-size: 14px; color: #666; margin-top: 10px;">
+                進度：<span id="progressText">0/3</span>
+            </div>
+        </div>
+
+        <!-- 題目1: 寵物選擇 -->
+        <div class="step" id="step3">
+            <div class="question-number">第 1 題</div>
+            <h2>🐕 如果要養寵物，妳會選擇？</h2>
+            <div class="option-container">
+                <div class="option" onclick="selectOption(1, 'samoyed')">
+                    <img src="samoyed.jpg" alt="薩摩耶" class="option-image">
+                    <div class="option-text">薩摩耶</div>
+                </div>
+                <div class="option" onclick="selectOption(1, 'chihuahua')">
+                    <img src="chihuahua.jpg" alt="吉娃娃" class="option-image">
+                    <div class="option-text">吉娃娃</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 題目2: 食物選擇 -->
+        <div class="step" id="step4">
+            <div class="question-number">第 2 題</div>
+            <h2>🍽️ 在這兩種食物中，妳更偏愛？</h2>
+            <div class="option-container">
+                <div class="option" onclick="selectOption(2, 'pickle')">
+                    <img src="pickle.jpg" alt="酸黃瓜" class="option-image">
+                    <div class="option-text">酸黃瓜</div>
+                </div>
+                <div class="option" onclick="selectOption(2, 'canele')">
+                    <img src="canele.jpg" alt="可麗露" class="option-image">
+                    <div class="option-text">可麗露</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 題目3: 生活方式 -->
+        <div class="step" id="step5">
+            <div class="question-number">第 3 題</div>
+            <h2>🏠 休假日最喜歡的行程？</h2>
+            <div class="option-container">
+                <div class="option" onclick="selectOption(3, 'home')">
+                    <img src="home.png" alt="宅在家" class="option-image">
+                    <div class="option-text">宅在家</div>
+                </div>
+                <div class="option" onclick="selectOption(3, 'outdoor')">
+                    <img src="outdoor.png" alt="出去玩" class="option-image">
+                    <div class="option-text">出去玩</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步驟6: 感謝完成 -->
+        <div class="step" id="step6">
+            <h2>🎉 測驗完成！</h2>
+            <p style="font-size: 1.2em; margin: 20px 0; color: #666;">
+                感謝你完成了所有測驗題目！<br>
+                AI正在分析你的答案...
+            </p>
+            <div class="loading"></div>
+            <p id="analysisText">正在分析你的性格特徵...</p>
+        </div>
+
+        <!-- 步驟7: 最終問題 -->
+        <div class="step" id="step7">
+            <h2>🔍 最終確認</h2>
+            <p style="margin-bottom: 20px; color: #666;">
+                產出最終結果前，請答覆最後一個問題以獲得完整分析：
+            </p>
+            <div class="confession-text" id="confessionText">
+                妳願意當我的女朋友嗎？
+            </div>
+            <button class="yes-button" onclick="showFinalStep()">我願意 💕</button>
+            <button onclick="showRefusal()" style="background: #ccc; color: #666;">讓我想想...</button>
+        </div>
+
+        <!-- 步驟8: 最終結果 -->
+        <div class="step" id="step8">
+            <h1>🎊 恭喜！</h1>
+            <p style="font-size: 1.3em; margin: 20px 0; color: #333;">
+                結果出爐：獲得最終大獎~！
+            </p>
+            <div class="photo-frame">
+                <img src="couple.png" alt="我們的合照">
+            </div>
+            <div class="final-message">
+                恭喜獲得，限定男友一隻！🐧
+            </div>
+        </div>
+    </div>
+
+    <div class="heart-animation" id="heartAnimation"></div>
+
+    <script>
+        let currentStep = 1;
+        let userName = '';
+        let answers = {};
+        let questionCount = 0;
+
+        function nextStep() {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep++;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            
+            if (currentStep >= 3 && currentStep <= 5) {
+                document.getElementById('progress-step').classList.add('active');
+                updateProgress();
+            } else {
+                document.getElementById('progress-step').classList.remove('active');
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentStep - 2) / 3) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${currentStep - 2}/3`;
+        }
+
+        function validateLogin() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const today = new Date().toISOString().split('T')[0];
+            const errorElement = document.getElementById('loginError');
+            
+            if (!username) {
+                errorElement.textContent = '請輸入妳的姓名';
+                return;
+            }
+            
+            if (password !== today) {
+                errorElement.textContent = '密碼錯誤！請輸入今天的日期';
+                return;
+            }
+            
+            userName = username;
+            errorElement.textContent = '';
+            nextStep();
+        }
+
+        function selectOption(questionNum, choice) {
+            // 清除該題目的所有選項的選中狀態
+            const options = document.querySelectorAll(`#step${currentStep} .option`);
+            options.forEach(option => option.classList.remove('selected'));
+            
+            // 標記選中的選項
+            event.target.closest('.option').classList.add('selected');
+            
+            // 保存答案
+            answers[questionNum] = choice;
+            
+            // 延遲跳轉到下一題
+            setTimeout(() => {
+                if (currentStep < 5) {
+                    nextStep();
+                } else {
+                    // 完成所有題目，跳到感謝頁面
+                    nextStep();
+                    startAnalysis();
+                }
+            }, 800);
+        }
+
+        function startAnalysis() {
+            const messages = [
+                '正在分析你的性格特徵...',
+                '解讀你的內心世界...',
+                '計算匹配度指數...',
+                '生成個人化結果...',
+                '準備最終問題...'
+            ];
+            
+            let index = 0;
+            const analysisText = document.getElementById('analysisText');
+            
+            const interval = setInterval(() => {
+                if (index < messages.length) {
+                    analysisText.textContent = messages[index];
+                    index++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        updateConfessionText();
+                        nextStep();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        function updateConfessionText() {
+            const confessionText = document.getElementById('confessionText');
+            confessionText.innerHTML = `${userName}，<br>妳願意當我女朋友嗎？`;
+        }
+
+        function showFinalStep() {
+            nextStep();
+            createHeartAnimation();
+        }
+
+        function showRefusal() {
+            alert('妳確定沒有按錯選項嗎 ～ ！😠');
+        }
+
+        function createHeartAnimation() {
+            const heartAnimation = document.getElementById('heartAnimation');
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = '💖';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.animationDelay = Math.random() * 2 + 's';
+                    heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                    heartAnimation.appendChild(heart);
+                    
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 5000);
+                }, i * 100);
+            }
+        }
+
+        // 防止頁面刷新
+        window.addEventListener('beforeunload', function(e) {
+            if (currentStep > 1 && currentStep < 8) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
